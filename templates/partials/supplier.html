@@ -1,0 +1,170 @@
+{% block content %}
+
+<style>
+.table-wrapper {
+  background: #fff;
+  padding: 16px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+}
+
+.table-supplier {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table-supplier th {
+  background: #2c3e50;
+  color: white;
+  padding: 10px;
+}
+
+.table-supplier td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.table-supplier tr:hover {
+  background: #f4f6f8;
+}
+
+.badge {
+  background: #3498db;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.nonaktif {
+  background: #f1f1f1;
+  color: #888;
+}
+
+/* SWITCH */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 22px;
+}
+.switch input { display: none; }
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #ccc;
+  border-radius: 34px;
+  top: 0; left: 0; right: 0; bottom: 0;
+  transition: .3s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .3s;
+}
+
+input:checked + .slider {
+  background-color: #2ecc71;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+.empty {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+}
+</style>
+
+<h2>📦 Data Supplier</h2>
+
+<div class="table-wrapper">
+<table class="table-supplier">
+  <thead>
+    <tr>
+      <th>No</th>
+      <th>ID</th>
+      <th>Nama Supplier</th>
+      <th>Alamat</th>
+      <th>Telp</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% if data %}
+      {% for s in data %}
+      <tr class="{% if s.status == 0 %}nonaktif{% endif %}">
+        <td>{{ loop.index }}</td>
+        <td><span class="badge">{{ s.id_supplier }}</span></td>
+        <td>{{ s.nama_supplier }}</td>
+        <td>{{ s.alamat or '-' }}</td>
+        <td>{{ s.telp or '-' }}</td>
+
+
+<td>
+  {% if s.status == 1 %}
+    <a href="/supplier/toggle/{{ s.id_supplier }}/0"
+       style="color:#2ecc71;font-weight:bold;text-decoration:none">
+       ● Aktif
+    </a>
+  {% else %}
+    <a href="/supplier/toggle/{{ s.id_supplier }}/1"
+       style="color:#e74c3c;font-weight:bold;text-decoration:none">
+       ● Non Aktif
+    </a>
+  {% endif %}
+</td>
+
+
+
+      </tr>
+      {% endfor %}
+    {% else %}
+      <tr>
+        <td colspan="6" class="empty">❌ Data supplier belum ada</td>
+      </tr>
+    {% endif %}
+  </tbody>
+</table>
+</div>
+
+<script>
+function ubahStatus(el,id){
+  let status = el.checked ? 1 : 0;
+
+  fetch("/supplier/status",{
+    method:"POST",
+    headers:{ "Content-Type":"application/x-www-form-urlencoded" },
+    body:`id_supplier=${id}&status=${status}`
+  })
+  .then(res => res.json())
+  .then(res => {
+    if(!res.success){
+      alert(res.message || "Gagal update status");
+      el.checked = !el.checked; // rollback toggle
+    } else {
+      // optional: reload row style
+      el.closest("tr").classList.toggle("nonaktif", status === 0);
+    }
+  })
+  .catch(()=>{
+    alert("Koneksi server error");
+    el.checked = !el.checked;
+  })
+}
+</script>
+
+
+
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Dashboard</h1>
+
+<div class="cards">
+  <div class="card clickable" data-type="supplier">
+    <h3>Total Supplier</h3>
+    <p>{{ total_supplier }}</p>
+  </div>
+
+  <div class="card clickable" data-type="barang">
+    <h3>Total Barang</h3>
+    <p>{{ total_barang }}</p>
+  </div>
+
+  <div class="card clickable" data-type="po">
+    <h3>Total PO</h3>
+    <p>{{ total_po }}</p>
+  </div>
+
+  <div class="card clickable" data-type="transaksi">
+    <h3>Total Transaksi</h3>
+    <p>Rp {{ '{:,.0f}'.format(total_transaksi) }}</p>
+  </div>
+</div>
+
+<hr>
+
+<h3 id="detail-title">Detail</h3>
+
+<div id="detail-content">
+  <i>Klik salah satu kartu untuk melihat data</i>
+</div>
+<script>
+document.querySelectorAll(".card.clickable").forEach(card => {
+  card.addEventListener("click", () => {
+    const type = card.dataset.type;
+
+    document.getElementById("detail-title").innerText =
+      "Detail " + type.toUpperCase();
+
+    document.getElementById("detail-content").innerHTML =
+      "<i>Loading...</i>";
+
+    fetch(`/dashboard_detail/${type}`)
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("detail-content").innerHTML = html;
+      })
+      .catch(() => {
+        document.getElementById("detail-content").innerHTML =
+          "<span style='color:red'>Gagal memuat data</span>";
+      });
+  });
+});
+</script>
+
+{% endblock %}
