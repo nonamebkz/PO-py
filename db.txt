@@ -1,0 +1,45 @@
+python app.py
+
+CREATE DATABASE po_db;
+USE po_db;
+
+-- Supplier
+CREATE TABLE supplier (
+    id_supplier VARCHAR(20) PRIMARY KEY,
+    nama_supplier VARCHAR(100),
+    alamat TEXT,
+    telp VARCHAR(20)
+);
+
+-- Barang
+CREATE TABLE barang (
+    id_barang VARCHAR(20) PRIMARY KEY,
+    nama_barang VARCHAR(100),
+    harga DECIMAL(12,2),
+    stok INT
+);
+
+-- PO Header
+CREATE TABLE po (
+    id_po VARCHAR(30) PRIMARY KEY,
+    tanggal_order DATE NOT NULL,
+    tanggal_kirim DATE,
+    id_supplier VARCHAR(20),
+    alamat_kirim TEXT,
+    status_order ENUM('DRAFT','ORDER','DIKIRIM','SELESAI','BATAL') DEFAULT 'ORDER',
+    total DECIMAL(12,2),
+    FOREIGN KEY (id_supplier) REFERENCES supplier(id_supplier)
+);
+
+
+-- PO Detail
+CREATE TABLE po_detail (
+    id_detail INT AUTO_INCREMENT PRIMARY KEY,
+    id_po VARCHAR(30),
+    id_barang VARCHAR(20),
+    qty INT,
+    harga DECIMAL(12,2),
+    subtotal DECIMAL(12,2),
+    FOREIGN KEY (id_po) REFERENCES po(id_po),
+    FOREIGN KEY (id_barang) REFERENCES barang(id_barang)
+);
